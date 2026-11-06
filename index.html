@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12372f">
+  <meta name="description" content="A complete multiple-choice reviewer for Lesson 5: Kitchen Safety — Precautions and First Aid.">
+  <title>Kitchen Safety Reviewer</title>
+  <style>
+    :root {
+      --ink: #17312c;
+      --muted: #687a75;
+      --paper: #fffdf8;
+      --canvas: #f1f5ef;
+      --forest: #12372f;
+      --leaf: #2f6f5f;
+      --lime: #d8efb3;
+      --line: #dce5de;
+      --correct: #19744a;
+      --correct-bg: #e8f7ee;
+      --wrong: #b53c35;
+      --wrong-bg: #fff0ed;
+      --warning: #f2b84b;
+      --shadow: 0 18px 50px rgba(18, 55, 47, .10);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 4%, rgba(216, 239, 179, .62), transparent 25rem),
+        radial-gradient(circle at 92% 80%, rgba(47, 111, 95, .10), transparent 28rem),
+        var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, select { font: inherit; }
+    button { touch-action: manipulation; }
+    button:focus-visible, select:focus-visible { outline: 3px solid rgba(47, 111, 95, .28); outline-offset: 3px; }
+    .app { width: min(100% - 32px, 1040px); margin: 0 auto; padding: 24px 0 46px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--forest); font-weight: 850; letter-spacing: -.02em; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; color: white; background: var(--forest); box-shadow: 0 8px 20px rgba(18,55,47,.2); }
+    .brand-mark svg { width: 23px; }
+    .lesson-pill { padding: 7px 12px; border: 1px solid rgba(18,55,47,.12); border-radius: 999px; color: var(--leaf); background: rgba(255,255,255,.66); font-size: .79rem; font-weight: 800; }
+
+    .panel { display: none; animation: rise .35s ease both; }
+    .panel.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .hero { display: grid; grid-template-columns: 1.3fr .7fr; gap: 24px; align-items: stretch; }
+    .hero-main, .hero-side, .quiz-card, .result-card { border: 1px solid rgba(18,55,47,.09); background: rgba(255,253,248,.94); box-shadow: var(--shadow); }
+    .hero-main { padding: clamp(28px, 5vw, 58px); border-radius: 32px; overflow: hidden; position: relative; }
+    .hero-main::after { content: ""; position: absolute; width: 240px; height: 240px; right: -105px; top: -115px; border: 40px solid var(--lime); border-radius: 50%; opacity: .55; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 15px; color: var(--leaf); font-size: .78rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 22px; height: 3px; border-radius: 4px; background: var(--leaf); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 700px; margin-bottom: 18px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 6.5vw, 4.8rem); line-height: .98; letter-spacing: -.055em; color: var(--forest); }
+    .lede { max-width: 620px; margin-bottom: 28px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.12rem); }
+    .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+    .stat { padding: 10px 14px; border-radius: 14px; background: #f3f7ef; font-size: .85rem; font-weight: 750; }
+    .stat strong { color: var(--forest); font-size: 1.04rem; }
+    .controls { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+    .select-wrap { position: relative; }
+    select { width: 100%; min-height: 52px; appearance: none; border: 1px solid var(--line); border-radius: 14px; padding: 0 42px 0 15px; color: var(--ink); background: white; font-weight: 750; cursor: pointer; }
+    .select-wrap::after { content: "⌄"; position: absolute; top: 13px; right: 16px; color: var(--leaf); pointer-events: none; }
+    .btn { min-height: 52px; border: 0; border-radius: 14px; padding: 0 20px; cursor: pointer; font-weight: 850; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { color: white; background: var(--forest); box-shadow: 0 9px 20px rgba(18,55,47,.2); }
+    .btn-primary:hover { background: #1a4a3f; }
+    .btn-secondary { color: var(--forest); background: #edf3ec; }
+    .btn-ghost { min-height: 42px; padding: 0 14px; color: var(--leaf); border: 1px solid var(--line); background: rgba(255,255,255,.75); }
+
+    .hero-side { display: flex; flex-direction: column; border-radius: 32px; padding: 28px; color: #eaf5ef; background: var(--forest); }
+    .hero-side h2 { margin-bottom: 7px; color: white; font-family: Georgia, serif; font-size: 1.55rem; }
+    .hero-side > p { color: #bcd1c9; font-size: .88rem; }
+    .coverage { display: grid; gap: 10px; margin: 14px 0 24px; }
+    .coverage-item { display: flex; align-items: center; gap: 10px; font-size: .85rem; font-weight: 700; }
+    .coverage-item span:first-child { display: grid; place-items: center; flex: 0 0 auto; width: 25px; height: 25px; border-radius: 8px; color: var(--forest); background: var(--lime); font-size: .72rem; font-weight: 950; }
+    .source-note { margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.12); color: #bcd1c9; font-size: .75rem; }
+
+    .quiz-shell { max-width: 780px; margin: 0 auto; }
+    .quiz-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 15px; }
+    .quiz-meta { min-width: 0; }
+    .topic-label { margin: 0 0 3px; overflow: hidden; color: var(--leaf); font-size: .76rem; font-weight: 900; letter-spacing: .08em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+    .count-label { margin: 0; color: var(--muted); font-size: .86rem; font-weight: 700; }
+    .score-chip { flex: 0 0 auto; padding: 8px 12px; border-radius: 999px; color: var(--forest); background: var(--lime); font-size: .82rem; font-weight: 900; }
+    .progress-track { width: 100%; height: 8px; margin-bottom: 18px; overflow: hidden; border-radius: 999px; background: #dfe7df; }
+    .progress-bar { height: 100%; border-radius: inherit; background: var(--leaf); transition: width .35s ease; }
+    .quiz-card { border-radius: 28px; padding: clamp(22px, 5vw, 42px); }
+    .question { margin-bottom: 25px; color: var(--forest); font-family: Georgia, serif; font-size: clamp(1.42rem, 4vw, 2rem); line-height: 1.22; letter-spacing: -.02em; }
+    .answers { display: grid; gap: 12px; }
+    .answer { display: grid; grid-template-columns: 34px 1fr 24px; align-items: center; gap: 12px; width: 100%; min-height: 62px; padding: 11px 14px; text-align: left; color: var(--ink); border: 1.5px solid var(--line); border-radius: 16px; background: white; cursor: pointer; transition: border .15s, background .15s, transform .15s; }
+    .answer:hover:not(:disabled) { transform: translateY(-1px); border-color: #8eb2a3; background: #fbfdf9; }
+    .answer:disabled { cursor: default; }
+    .letter { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: var(--leaf); background: #edf3ec; font-size: .81rem; font-weight: 950; }
+    .answer-text { font-weight: 720; }
+    .answer-icon { display: grid; place-items: center; font-weight: 950; }
+    .answer.correct { border-color: #77bd94; background: var(--correct-bg); }
+    .answer.correct .letter { color: white; background: var(--correct); }
+    .answer.wrong { border-color: #e2a29d; background: var(--wrong-bg); }
+    .answer.wrong .letter { color: white; background: var(--wrong); }
+    .answer.dimmed { opacity: .57; }
+    .feedback { display: none; margin-top: 20px; padding: 17px 18px; border-radius: 16px; border-left: 4px solid var(--leaf); background: #f2f6f0; }
+    .feedback.show { display: block; animation: rise .25s ease; }
+    .feedback.good { border-left-color: var(--correct); background: var(--correct-bg); }
+    .feedback.bad { border-left-color: var(--wrong); background: var(--wrong-bg); }
+    .feedback-title { margin-bottom: 5px; font-weight: 950; }
+    .feedback-text { margin: 0; color: #526560; font-size: .91rem; }
+    .quiz-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 22px; }
+    .hint { color: var(--muted); font-size: .78rem; }
+    #nextBtn { display: none; }
+
+    .result-card { max-width: 760px; margin: 0 auto; border-radius: 32px; padding: clamp(27px, 6vw, 56px); text-align: center; }
+    .result-icon { display: grid; place-items: center; width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 23px; color: var(--forest); background: var(--lime); font-size: 2rem; }
+    .result-card h2 { margin-bottom: 8px; color: var(--forest); font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.04em; }
+    .result-card > p { color: var(--muted); }
+    .score-ring { display: grid; place-items: center; width: 150px; height: 150px; margin: 25px auto; border-radius: 50%; background: conic-gradient(var(--leaf) var(--score-angle), #e1e8e1 0); position: relative; }
+    .score-ring::before { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: var(--paper); }
+    .score-value { position: relative; color: var(--forest); font-size: 2rem; font-weight: 950; line-height: 1; }
+    .score-value small { display: block; margin-top: 7px; color: var(--muted); font-size: .72rem; font-weight: 750; }
+    .result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
+    .result-stat { padding: 15px 8px; border-radius: 15px; background: #f2f6f0; }
+    .result-stat strong { display: block; color: var(--forest); font-size: 1.25rem; }
+    .result-stat span { color: var(--muted); font-size: .76rem; font-weight: 750; }
+    .result-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    .review-list { display: none; margin-top: 28px; text-align: left; }
+    .review-list.show { display: grid; gap: 12px; }
+    .review-item { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    .review-item p { margin-bottom: 8px; font-weight: 800; }
+    .review-item small { color: var(--correct); font-weight: 750; }
+    .footer { margin-top: 26px; color: #75857f; text-align: center; font-size: .74rem; }
+
+    @media (max-width: 760px) {
+      .app { width: min(100% - 22px, 1040px); padding-top: 14px; }
+      .topbar { margin-bottom: 15px; }
+      .lesson-pill { display: none; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-main, .hero-side { border-radius: 24px; }
+      .hero-side { padding: 24px; }
+      .controls { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .quiz-card { border-radius: 22px; }
+      .quiz-actions .btn { width: auto; }
+      .hint { display: none; }
+    }
+
+    @media (max-width: 440px) {
+      .brand { font-size: .92rem; }
+      .brand-mark { width: 38px; height: 38px; }
+      .hero-main { padding: 27px 21px; }
+      h1 { font-size: 2.55rem; }
+      .stat { flex: 1 1 45%; text-align: center; }
+      .quiz-card { padding: 21px 16px; }
+      .answer { grid-template-columns: 32px 1fr 18px; gap: 9px; padding: 10px; }
+      .answer-text { font-size: .92rem; }
+      .result-stats { gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M16 3c2.2 2.7 2.2 7.3 0 10v8M16 3v10h4"/></svg>
+        </span>
+        Kitchen Safety Reviewer
+      </div>
+      <span class="lesson-pill">Lesson 5 • Precautions &amp; First Aid</span>
+    </header>
+
+    <section id="homePanel" class="panel active" aria-labelledby="homeTitle">
+      <div class="hero">
+        <div class="hero-main">
+          <p class="eyebrow">Study smarter</p>
+          <h1 id="homeTitle">Ready for a safer kitchen?</h1>
+          <p class="lede">Master the full lesson through focused multiple-choice practice. Every answer includes instant feedback and a short explanation from the PDF.</p>
+          <div class="stats" aria-label="Reviewer statistics">
+            <span class="stat"><strong id="questionTotal">0</strong> questions</span>
+            <span class="stat"><strong id="topicTotal">0</strong> topics</span>
+            <span class="stat"><strong>Instant</strong> answers</span>
+          </div>
+          <div class="controls">
+            <div class="select-wrap">
+              <label for="topicSelect" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Choose a topic</label>
+              <select id="topicSelect"></select>
+            </div>
+            <button id="startBtn" class="btn btn-primary">Start review</button>
+          </div>
+        </div>
+        <aside class="hero-side" aria-label="Lesson coverage">
+          <h2>Complete lesson coverage</h2>
+          <p>The bank follows the PDF from prevention through emergency response.</p>
+          <div class="coverage">
+            <div class="coverage-item"><span>01</span><span>Hazards &amp; common accidents</span></div>
+            <div class="coverage-item"><span>02</span><span>Safe kitchen practices</span></div>
+            <div class="coverage-item"><span>03</span><span>First aid kit &amp; principles</span></div>
+            <div class="coverage-item"><span>04</span><span>Injury-specific first aid</span></div>
+            <div class="coverage-item"><span>05</span><span>Preparedness &amp; responsibilities</span></div>
+          </div>
+          <p class="source-note">Source: “Lesson 5: Kitchen Safety: Precautions and First Aid” by Ms. Andrea Camille L. Dela Cruz, MBA.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="quizPanel" class="panel" aria-live="polite">
+      <div class="quiz-shell">
+        <div class="quiz-head">
+          <div class="quiz-meta">
+            <p id="topicLabel" class="topic-label"></p>
+            <p id="countLabel" class="count-label"></p>
+          </div>
+          <span id="scoreChip" class="score-chip">0 correct</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><div id="progressBar" class="progress-bar"></div></div>
+        <article class="quiz-card">
+          <h2 id="questionText" class="question"></h2>
+          <div id="answers" class="answers" role="group" aria-labelledby="questionText"></div>
+          <div id="feedback" class="feedback" role="status">
+            <p id="feedbackTitle" class="feedback-title"></p>
+            <p id="feedbackText" class="feedback-text"></p>
+          </div>
+          <div class="quiz-actions">
+            <button id="quitBtn" class="btn btn-ghost">Exit</button>
+            <span class="hint">Choose one answer to continue</span>
+            <button id="nextBtn" class="btn btn-primary">Next question</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="resultPanel" class="panel">
+      <div class="result-card">
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <h2>Review complete</h2>
+        <p id="resultMessage"></p>
+        <div id="scoreRing" class="score-ring"><div id="scoreValue" class="score-value"></div></div>
+        <div class="result-stats">
+          <div class="result-stat"><strong id="correctStat">0</strong><span>Correct</span></div>
+          <div class="result-stat"><strong id="missedStat">0</strong><span>To review</span></div>
+          <div class="result-stat"><strong id="topicStat">0</strong><span>Topics</span></div>
+        </div>
+        <div class="result-actions">
+          <button id="retryBtn" class="btn btn-primary">Try again</button>
+          <button id="reviewBtn" class="btn btn-secondary">Review missed</button>
+          <button id="homeBtn" class="btn btn-ghost">Choose topic</button>
+        </div>
+        <div id="reviewList" class="review-list"></div>
+      </div>
+    </section>
+
+    <footer class="footer">For lesson review purposes • First aid should be provided within your level of training.</footer>
+  </main>
+
+  <script>
+    const Q = (topic, q, options, answer, explanation) => ({ topic, q, options, answer, explanation });
+    const questions = [
+      Q("Kitchen Safety Basics", "What does kitchen safety refer to?", ["Practices and procedures that prevent accidents, injuries, and health hazards", "A system used only to improve food presentation", "Rules for reducing ingredient costs", "A method for increasing cooking speed"], 0, "Kitchen safety consists of practices and procedures used to prevent accidents, injuries, and health hazards in food preparation areas."),
+      Q("Kitchen Safety Basics", "Which group is protected by good kitchen safety practices?", ["Only supervisors", "Employees and customers", "Only customers", "Equipment suppliers"], 1, "The lesson states that kitchen safety protects both employees and customers."),
+      Q("Kitchen Safety Basics", "Which is an importance of kitchen safety listed in the lesson?", ["It eliminates the need for training", "It reduces menu choices", "It prevents workplace injuries", "It replaces food sanitation"], 2, "Preventing workplace injuries is one of the stated reasons kitchen safety is important."),
+      Q("Kitchen Safety Basics", "How does kitchen safety affect productivity?", ["It maintains productivity", "It always slows production", "It has no connection to productivity", "It removes the need for staff"], 0, "The PDF identifies maintaining productivity as an important benefit of kitchen safety."),
+      Q("Kitchen Safety Basics", "Kitchen safety helps an operation comply with what?", ["Advertising trends", "Safety regulations", "Customer recipes", "Uniform colors"], 1, "Ensuring compliance with safety regulations is one of the listed benefits."),
+      Q("Kitchen Safety Basics", "What safety principle is emphasized in the lesson?", ["Speed is more important than caution", "Treatment is better than preparation", "Prevention is always better than treatment", "Accidents cannot be avoided"], 2, "The lesson’s safety principle is: prevention is always better than treatment."),
+
+      Q("Kitchen Hazards", "Sharp knives and slippery floors are examples of which kind of hazard?", ["Biological", "Chemical", "Physical", "Electrical"], 2, "The lesson classifies sharp knives, hot surfaces, and slippery floors as physical hazards."),
+      Q("Kitchen Hazards", "Which item is classified as a physical hazard?", ["Hot surface", "Sanitizer", "Damaged cord", "Microorganism"], 0, "Hot surfaces are listed under physical hazards."),
+      Q("Kitchen Hazards", "Cleaning chemicals and sanitizers belong to which hazard category?", ["Fire", "Chemical", "Biological", "Physical"], 1, "Cleaning chemicals and sanitizers are chemical hazards."),
+      Q("Kitchen Hazards", "Which is an electrical hazard?", ["Grease fire", "Food contamination", "Faulty appliance", "Wet floor"], 2, "Faulty appliances and damaged cords are the lesson’s examples of electrical hazards."),
+      Q("Kitchen Hazards", "A damaged electrical cord is classified as what type of hazard?", ["Electrical", "Biological", "Chemical", "Fire only"], 0, "Damaged cords are identified as electrical hazards."),
+      Q("Kitchen Hazards", "Grease fires and gas leaks are examples of which hazard category?", ["Physical", "Biological", "Fire", "Chemical"], 2, "The fire-hazard examples in the lesson are grease fires and gas leaks."),
+      Q("Kitchen Hazards", "Food contamination is categorized as what type of hazard?", ["Electrical", "Biological", "Fire", "Physical"], 1, "Food contamination and microorganisms are listed as biological hazards."),
+      Q("Kitchen Hazards", "Which is a biological hazard in a kitchen?", ["Microorganisms", "Hot equipment", "Loose jewelry", "Uneven surface"], 0, "Microorganisms are one of the two biological hazard examples in the lesson."),
+
+      Q("Common Accidents", "Which incident is frequently reported in kitchens?", ["Cuts and lacerations", "Sunburn", "Motion sickness", "Altitude sickness"], 0, "Cuts and lacerations are among the frequently reported kitchen incidents."),
+      Q("Common Accidents", "Which pair contains two common kitchen accidents from the lesson?", ["Choking and eye injuries", "Frostbite and seasickness", "Dehydration and jet lag", "Allergies and insomnia"], 0, "Choking and eye injuries are both included in the lesson’s accident list."),
+      Q("Common Accidents", "What can kitchen accidents cause for an operation?", ["Guaranteed higher sales", "Lost work time", "Lower safety needs", "Fewer operating costs"], 1, "The stated impacts include worker injury, lost work time, and increased operational costs."),
+      Q("Common Accidents", "How can accidents affect operational costs?", ["They always remove costs", "They have no effect", "They can increase operational costs", "They make all supplies free"], 2, "Increased operational costs are a listed impact of kitchen accidents."),
+
+      Q("Personal Safety", "Which footwear is recommended for kitchen work?", ["Open-toe sandals", "High heels", "Non-slip footwear", "Bare feet"], 2, "The personal safety practices specifically recommend non-slip footwear."),
+      Q("Personal Safety", "What should an employee with long hair do?", ["Leave it loose", "Tie it back", "Cover only the ends", "Wet it before work"], 1, "Tying back long hair is one of the recommended personal safety practices."),
+      Q("Personal Safety", "What should kitchen employees avoid wearing?", ["Appropriate uniforms", "Non-slip shoes", "Loose clothing and jewelry", "Protective equipment"], 2, "The lesson advises avoiding loose clothing and jewelry."),
+      Q("Personal Safety", "What is the goal of personal safety practices?", ["Reduce the likelihood of accidents and injuries", "Make every task faster", "Replace emergency procedures", "Eliminate all employee training"], 0, "Their stated goal is to reduce the likelihood of accidents and injuries."),
+      Q("Personal Safety", "Which action follows the lesson’s personal safety guidance?", ["Ignoring procedures when busy", "Wearing an appropriate uniform", "Keeping long hair loose", "Adding loose jewelry"], 1, "Wearing appropriate uniforms and following safety procedures are both recommended."),
+
+      Q("Knife Safety", "What is the first consideration when selecting a knife?", ["Use the largest knife available", "Use the correct knife for the task", "Use the dullest knife", "Use any knife within reach"], 1, "The safe-handling rules say to use the correct knife for the task."),
+      Q("Knife Safety", "How should kitchen knives be maintained for safer handling?", ["Kept sharp", "Kept wet", "Kept hidden", "Kept dull"], 0, "Keeping knives sharp is one of the lesson’s safety rules."),
+      Q("Knife Safety", "In which direction should you cut?", ["Toward the body", "Away from the body", "Toward another person", "In any direction"], 1, "The lesson instructs workers to cut away from the body."),
+      Q("Knife Safety", "What kind of cutting board should be used?", ["A moving board", "A stable cutting board", "A board balanced on a bowl", "No board at all"], 1, "A stable cutting board is part of proper knife handling."),
+      Q("Knife Safety", "Why should knives never be left submerged in water?", ["The lesson identifies this as an unsafe knife practice", "It makes the water boil", "It changes the uniform color", "It reduces lighting"], 0, "Never leaving knives submerged in water is an explicit knife-safety rule."),
+      Q("Knife Safety", "According to the lesson, most kitchen cuts are preventable through what?", ["Faster chopping", "Proper knife handling techniques", "Using loose cutting boards", "Submerging knives after use"], 1, "The prevention statement says most kitchen cuts can be prevented through proper knife handling."),
+
+      Q("Slips, Trips & Falls", "Which is a common cause of slips, trips, and falls?", ["Adequate lighting", "Clear pathways", "Wet floors", "Caution signs"], 2, "Wet floors are listed as a common cause."),
+      Q("Slips, Trips & Falls", "Cluttered walkways create a risk of what?", ["Slips, trips, and falls", "Food contamination only", "Choking only", "Chemical ingestion only"], 0, "Cluttered walkways are one of the listed causes of slips, trips, and falls."),
+      Q("Slips, Trips & Falls", "What should be done when a spill occurs?", ["Leave it for the next shift", "Clean it immediately", "Cover it with paper", "Turn off the lights"], 1, "The lesson’s prevention measure is to clean spills immediately."),
+      Q("Slips, Trips & Falls", "What should alert people to a temporary floor hazard?", ["A menu board", "A caution sign", "A recipe card", "A towel hidden under a table"], 1, "Using caution signs is a listed prevention measure."),
+      Q("Slips, Trips & Falls", "How should kitchen pathways be maintained?", ["Dark", "Crowded", "Clear", "Wet"], 2, "Keeping pathways clear helps prevent slips, trips, and falls."),
+      Q("Slips, Trips & Falls", "Which measure improves visibility and helps prevent falls?", ["Adequate lighting", "Loose jewelry", "Overcrowding", "Damaged cords"], 0, "Ensuring adequate lighting is one of the prevention measures."),
+      Q("Slips, Trips & Falls", "Uneven surfaces are identified as what?", ["A common cause of falls", "A first aid supply", "A fire response method", "A biological hazard"], 0, "Uneven surfaces are listed as a common cause of slips, trips, and falls."),
+
+      Q("Burn & Fire Prevention", "Which is a source of kitchen burns?", ["Steam", "Cotton balls", "Medical tape", "Caution signs"], 0, "Hot oil, steam, boiling liquids, and hot equipment are listed burn sources."),
+      Q("Burn & Fire Prevention", "What should be used to handle hot kitchen items?", ["Disposable gloves only", "Oven mitts", "Cotton balls", "Antiseptic wipes"], 1, "Using oven mitts is one of the burn-prevention practices."),
+      Q("Burn & Fire Prevention", "How should pot handles be positioned?", ["Turned outward", "Turned inward", "Over another burner", "Beyond the counter edge"], 1, "The lesson says to turn pot handles inward."),
+      Q("Burn & Fire Prevention", "Which practice helps prevent burns in a cooking area?", ["Overcrowding the area", "Avoiding overcrowding", "Leaving hot oil unattended", "Touching hot equipment"], 1, "Avoiding overcrowding in cooking areas is a stated prevention measure."),
+      Q("Burn & Fire Prevention", "Which group contains only burn sources named in the PDF?", ["Hot oil, steam, and boiling liquids", "Cold water, gauze, and tape", "Lighting, gloves, and scissors", "Cords, bandages, and tweezers"], 0, "The lesson names hot oil, steam, boiling liquids, and hot equipment as burn sources."),
+
+      Q("First Aid Basics", "What is first aid?", ["Care given only after hospital admission", "Immediate care before professional medical assistance arrives", "A replacement for all medical treatment", "A workplace inspection"], 1, "First aid is immediate care for an injured or suddenly ill person before professional help arrives."),
+      Q("First Aid Basics", "Which is one objective of first aid?", ["Preserve life", "Increase hazards", "Delay recovery", "Replace safety rules"], 0, "The three objectives are to preserve life, prevent further injury, and promote recovery."),
+      Q("First Aid Basics", "Which objective focuses on keeping the condition from getting worse?", ["Promote sales", "Prevent further injury", "Maintain lighting", "Reduce training"], 1, "Preventing further injury is one of the objectives of first aid."),
+      Q("First Aid Basics", "Why is quick action important in food service emergencies?", ["It can reduce injury severity and complications", "It guarantees no professional help is needed", "It replaces emergency calls", "It eliminates every hazard"], 0, "The lesson says quick action can reduce the severity of injuries and complications."),
+      Q("First Aid Basics", "Which completes the three first-aid objectives: preserve life, prevent further injury, and ____?", ["promote recovery", "protect equipment", "prepare recipes", "increase costs"], 0, "Promote recovery is the third objective."),
+
+      Q("Emergency Response", "What should be done first when responding to an emergency?", ["Assess the situation and ensure the area is safe", "Move every victim immediately", "Ignore the surroundings", "Clean the entire kitchen"], 0, "The emergency-response principles begin with assessing the situation and ensuring the area is safe."),
+      Q("Emergency Response", "Why must a responder protect themselves?", ["To avoid becoming another victim", "To avoid reporting the event", "To postpone care", "To protect only the equipment"], 0, "The lesson explicitly says to avoid becoming another victim."),
+      Q("Emergency Response", "Who should be notified when calling for help?", ["Only customers", "Supervisors or emergency responders", "Only suppliers", "No one until the next day"], 1, "Calling for help means notifying supervisors or emergency responders."),
+      Q("Emergency Response", "How much first aid should a person provide?", ["Any procedure they have seen online", "Care within their level of training", "No care under any circumstance", "Only care requested by a coworker"], 1, "The lesson instructs responders to administer first aid within their level of training."),
+      Q("Emergency Response", "What should happen after appropriate care has been provided?", ["Leave the victim alone", "Monitor the victim until help arrives", "Return immediately to cooking", "Move all equipment"], 1, "The final principle is to observe and monitor the victim until help arrives."),
+
+      Q("First Aid Kit", "What is a basic first aid kit?", ["A set of kitchen utensils", "A collection of medical supplies for immediate treatment", "A box of cleaning chemicals", "An emergency contact list only"], 1, "It is defined as a collection of medical supplies used for immediate treatment of injuries and emergencies."),
+      Q("First Aid Kit", "Why is a first aid kit important?", ["It enables rapid response", "It replaces employee training", "It increases complications", "It stores food safely"], 0, "The kit enables rapid response, minimizes complications, and supports workplace safety programs."),
+      Q("First Aid Kit", "Which item belongs in the basic first aid kit?", ["Adhesive bandages", "Cooking oil", "Chef's knife", "Cleaning concentrate"], 0, "Adhesive bandages are included in the essential supplies."),
+      Q("First Aid Kit", "Which pair is included in the first aid kit?", ["Sterile gauze pads and medical tape", "Gas lighter and matches", "Saucepan and lid", "Soap and seasoning"], 0, "Sterile gauze pads and medical tape are both listed supplies."),
+      Q("First Aid Kit", "Which supply helps clean around a minor wound?", ["Antiseptic wipes", "Cooking cloth", "Gas valve", "Caution sign"], 0, "Antiseptic wipes are part of the kit’s essential supplies."),
+      Q("First Aid Kit", "Which protective item is listed as an essential supply?", ["Disposable gloves", "Loose jewelry", "Open-toe shoes", "Apron strings"], 0, "Disposable gloves are included in the basic first aid kit."),
+      Q("First Aid Kit", "Which two tools are included in the first aid kit list?", ["Scissors and tweezers", "Knife and peeler", "Whisk and tongs", "Saw and drill"], 0, "The lesson lists scissors and tweezers."),
+      Q("First Aid Kit", "Which types of bandage are specifically listed?", ["Triangular and elastic bandages", "Only adhesive tape", "Plaster and wooden bandages", "Plastic and metal bandages"], 0, "Both a triangular bandage and an elastic bandage appear in the kit list."),
+      Q("First Aid Kit", "Which burn-related supply belongs in the kit?", ["Butter", "Toothpaste", "Burn ointment", "Ice cubes"], 2, "Burn ointment is one of the essential supplies listed in the PDF."),
+      Q("First Aid Kit", "Which item is also explicitly included with the medical supplies?", ["Cotton balls", "Pot handles", "Oven rack", "Food thermometer"], 0, "Cotton balls are part of the first aid kit contents."),
+
+      Q("Cuts & Lacerations", "Before treating a cut, what should the responder do?", ["Wash hands and wear gloves", "Apply butter", "Move the victim outdoors", "Submerge a knife"], 0, "Step 1 is to wash hands and wear gloves."),
+      Q("Cuts & Lacerations", "What should be done to stop bleeding?", ["Apply pressure", "Apply heat", "Leave the wound open", "Rub the wound"], 0, "Step 2 is to apply pressure to stop the bleeding."),
+      Q("Cuts & Lacerations", "What should be used to clean a cut?", ["Clean water", "Sanitizer concentrate", "Cooking oil", "Butter"], 0, "Step 3 says to clean the wound with clean water."),
+      Q("Cuts & Lacerations", "What comes after cleaning the wound with clean water?", ["Apply antiseptic", "Apply toothpaste", "Use hot oil", "Remove all gloves"], 0, "After cleaning, Step 4 is to apply antiseptic."),
+      Q("Cuts & Lacerations", "How should a cleaned and treated cut be covered?", ["With a sterile dressing", "With loose clothing", "With a used towel", "With plastic food wrap"], 0, "Step 5 is to cover the wound with a sterile dressing."),
+      Q("Cuts & Lacerations", "When should medical help be sought for a cut?", ["When bleeding is severe", "Only when the cut is invisible", "Never", "Only at the end of the week"], 0, "Severe bleeding is one reason to seek medical help."),
+      Q("Cuts & Lacerations", "Which wound requires medical help according to the lesson?", ["A deep wound", "Any mark from a pen", "A clean glove", "A damp uniform"], 0, "The lesson says to seek medical help when the wound is deep."),
+      Q("Cuts & Lacerations", "What should be done if a foreign object is embedded in a wound?", ["Seek medical help", "Ignore it", "Cover it with butter", "Push it farther in"], 0, "Embedded foreign objects are a reason to seek medical help."),
+
+      Q("Burns & Scalds First Aid", "What is the first action for a minor burn?", ["Remove the source of heat", "Apply ice", "Break any blister", "Apply toothpaste"], 0, "The minor-burn procedure starts by removing the heat source."),
+      Q("Burns & Scalds First Aid", "How long should a minor burn be cooled with running water?", ["1–2 minutes", "10–20 minutes", "45–60 minutes", "Until the next shift"], 1, "The PDF instructs cooling the burn under running water for 10–20 minutes."),
+      Q("Burns & Scalds First Aid", "What should cover a cooled minor burn?", ["A sterile dressing", "Butter", "A wet uniform", "A used kitchen towel"], 0, "After cooling, cover the burn with a sterile dressing."),
+      Q("Burns & Scalds First Aid", "Which should NOT be applied to a burn?", ["Running water", "A sterile dressing", "Ice", "Appropriate cover"], 2, "The lesson specifically says not to apply ice."),
+      Q("Burns & Scalds First Aid", "What should be done with burn blisters?", ["Break them immediately", "Do not break them", "Rub them with a towel", "Cover them in toothpaste"], 1, "The 'Do Not' list says not to break blisters."),
+      Q("Burns & Scalds First Aid", "Which household products should not be applied to burns?", ["Butter or toothpaste", "Clean running water", "Sterile dressing", "Medical supplies"], 0, "The lesson explicitly warns against applying butter or toothpaste."),
+      Q("Burns & Scalds First Aid", "Which burn requires medical attention?", ["A severe burn", "Only a burn that has already healed", "No burn ever", "A warm plate with no injury"], 0, "Seek medical attention if the burn is severe."),
+      Q("Burns & Scalds First Aid", "Which burn location calls for medical attention?", ["Face, hands, or genitals", "Only hair ends", "Uniform sleeve only", "Shoe sole only"], 0, "Burns involving the face, hands, or genitals require medical attention."),
+      Q("Burns & Scalds First Aid", "A burn covering a large area should be handled how?", ["Seek medical attention", "Apply butter", "Break blisters", "Ignore it"], 0, "A burn covering a large area is a reason to seek medical attention."),
+
+      Q("Choking", "Which is a sign of choking?", ["Difficulty breathing", "Clear speech", "Normal skin color only", "Comfortable swallowing"], 0, "Difficulty breathing is one of the signs listed."),
+      Q("Choking", "What gesture may indicate choking?", ["Clutching the throat", "Pointing at a menu", "Tying an apron", "Holding a plate"], 0, "Clutching the throat is a recognized sign in the lesson."),
+      Q("Choking", "What does cyanosis mean in the choking lesson?", ["Bluish skin", "A skin cut", "A burn blister", "A swollen ankle"], 0, "The PDF defines cyanosis in parentheses as bluish skin."),
+      Q("Choking", "If a choking person can cough, what should you do?", ["Encourage coughing", "Immediately give food", "Tell them not to cough", "Leave the area"], 0, "The response guidance says to encourage coughing if possible."),
+      Q("Choking", "If the airway is blocked, when should abdominal thrusts be performed?", ["If the responder is trained", "By anyone regardless of training", "Only after the person eats", "Never under any condition"], 0, "The lesson says to perform abdominal thrusts (the Heimlich maneuver) if trained."),
+      Q("Choking", "What emergency action accompanies response to a blocked airway?", ["Call emergency services immediately", "Wait until the next day", "Call a supplier", "Continue normal work"], 0, "Emergency services should be called immediately."),
+      Q("Choking", "Which is another choking sign listed in the PDF?", ["Inability to speak", "Improved breathing", "Loud singing", "Normal conversation"], 0, "Inability to speak is a listed choking sign."),
+
+      Q("Falls First Aid", "What should first be checked after a slip, trip, or fall?", ["Consciousness and injuries", "The menu", "The victim's uniform color", "The next shift schedule"], 0, "The assessment begins by checking consciousness and injuries."),
+      Q("Falls First Aid", "How should a fallen victim be moved?", ["Do not move them unnecessarily", "Move them immediately in every case", "Ask them to run", "Drag them away without assessment"], 0, "The first-aid guidance says not to move the victim unnecessarily."),
+      Q("Falls First Aid", "What can be applied for swelling after a fall?", ["A cold compress", "Hot oil", "Cleaning chemical", "Butter"], 0, "Apply cold compresses for swelling."),
+      Q("Falls First Aid", "When should medical attention be sought after a fall?", ["When a fracture is suspected", "Only when no injury exists", "Never", "Only after one week"], 0, "The lesson directs responders to seek medical attention if fractures are suspected."),
+      Q("Falls First Aid", "Which is a warning sign after a fall?", ["Severe pain", "Normal movement", "No discomfort", "Improved balance"], 0, "Severe pain is one of the warning signs."),
+      Q("Falls First Aid", "Which pair contains warning signs after a fall?", ["Head injury and loss of consciousness", "Hunger and thirst", "Clean shoes and clear speech", "Warm hands and normal balance"], 0, "The warning signs include severe pain, head injury, and loss of consciousness."),
+
+      Q("Electric Shock", "What is the first immediate action for electric shock?", ["Turn off the power source", "Touch the victim", "Pour water on the source", "Move the victim while power is active"], 0, "The first action is to turn off the power source."),
+      Q("Electric Shock", "Why should the victim not be touched while electricity is active?", ["The lesson directs responders to avoid contact until power is disconnected", "The victim needs to stand up alone", "It makes the lights brighter", "It prevents reporting"], 0, "Do not touch the victim while electricity is active."),
+      Q("Electric Shock", "Who should be contacted during an electric-shock emergency?", ["Emergency services", "A food supplier", "A customer only", "No one"], 0, "Calling emergency services is one of the immediate actions."),
+      Q("Electric Shock", "After power is disconnected, what should be checked?", ["Breathing and responsiveness", "The recipe", "Food temperature only", "The cleaning schedule"], 0, "Once power is disconnected, check breathing and responsiveness."),
+      Q("Electric Shock", "Who should provide first aid after an electric shock?", ["A person who is trained", "Any customer", "Only an equipment vendor", "No one even if trained"], 0, "The lesson says to provide first aid if trained."),
+      Q("Electric Shock", "How long should the victim be monitored?", ["Until help arrives", "For exactly one minute", "Only while power is active", "Until work resumes"], 0, "Monitor the victim until help arrives."),
+
+      Q("Chemical Exposure", "How long should skin exposed to a chemical be flushed with water?", ["At least 15 minutes", "Exactly 30 seconds", "One minute at most", "No water should be used"], 0, "For skin contact, flush with water for at least 15 minutes."),
+      Q("Chemical Exposure", "What should be done after chemical contact with the eyes?", ["Rinse continuously with clean water", "Rub the eyes", "Apply butter", "Cover without rinsing"], 0, "The lesson says to rinse the eyes continuously with clean water."),
+      Q("Chemical Exposure", "What should be done after chemical inhalation?", ["Move the victim to fresh air", "Keep the victim beside the chemical", "Give solid food", "Apply a cold compress to a shoe"], 0, "For inhalation, move the victim to fresh air."),
+      Q("Chemical Exposure", "What instructions should be followed after chemical ingestion?", ["Poison control instructions", "A recipe card", "A supplier's menu", "Fire audit instructions only"], 0, "The ingestion response says to follow poison control instructions."),
+      Q("Chemical Exposure", "What additional action is required for chemical ingestion?", ["Seek immediate medical attention", "Wait until symptoms disappear", "Return to work", "Apply oven mitts"], 0, "The lesson also says to seek immediate medical attention."),
+
+      Q("Emergency Preparedness", "Which belongs in established emergency procedures?", ["Emergency contacts", "Daily specials", "Supplier discounts", "Uniform measurements"], 0, "Emergency contacts are part of established emergency procedures."),
+      Q("Emergency Preparedness", "Which two plans belong under emergency procedures?", ["Reporting protocols and evacuation plans", "Menu plans and seating charts", "Recipe notes and order tickets", "Payroll forms and advertisements"], 0, "The three items are emergency contacts, reporting protocols, and evacuation plans."),
+      Q("Emergency Preparedness", "Which subject belongs in employee emergency training?", ["First aid awareness", "Table decoration", "Menu pricing", "Sales forecasting"], 0, "First aid awareness is included in employee training."),
+      Q("Emergency Preparedness", "What fire-related topic should employee training include?", ["Fire response", "Fire photography", "Fire decoration", "Fire advertising"], 0, "Fire response is one of the employee training topics."),
+      Q("Emergency Preparedness", "Which reporting topic is part of employee training?", ["Accident reporting", "Recipe reporting", "Customer preference reporting", "Sales reporting only"], 0, "Accident reporting is listed under employee training."),
+      Q("Emergency Preparedness", "What should regular inspections include?", ["Equipment checks", "Menu redesign", "Customer interviews", "Uniform sales"], 0, "Equipment checks are one of the regular inspection activities."),
+      Q("Emergency Preparedness", "Which formal review is listed under regular inspections?", ["Safety audits", "Advertising audits", "Taste tests", "Payroll audits"], 0, "Safety audits are part of regular inspections."),
+      Q("Emergency Preparedness", "What first-aid resource requires regular maintenance?", ["The first aid kit", "The menu board", "The cash drawer", "The dining chairs"], 0, "First aid kit maintenance is a listed regular-inspection responsibility."),
+
+      Q("Employee Responsibilities", "What should employees do when they notice a hazard?", ["Report it immediately", "Ignore it", "Wait for a customer to report it", "Hide it"], 0, "Employees should report hazards immediately."),
+      Q("Employee Responsibilities", "How should protective equipment be used?", ["Properly", "Only for decoration", "Only by customers", "Without training or rules"], 0, "Employees are responsible for using protective equipment properly."),
+      Q("Employee Responsibilities", "Which learning activity should employees participate in?", ["Safety training", "Advertising training only", "Costume contests", "No training"], 0, "Participating in safety training is one of the stated responsibilities."),
+      Q("Employee Responsibilities", "What workplace conditions should employees maintain?", ["Cleanliness and sanitation", "Clutter and wet floors", "Darkness and crowding", "Loose cords and gas leaks"], 0, "Employees should maintain cleanliness and sanitation."),
+      Q("Employee Responsibilities", "Who is responsible for kitchen safety?", ["Everyone", "Only the manager", "Only customers", "Only emergency responders"], 0, "The lesson states: safety is everyone’s responsibility."),
+      Q("Employee Responsibilities", "What does a safe kitchen depend on?", ["Cooperation of all staff members", "One worker acting alone", "Ignoring minor hazards", "Avoiding all reporting"], 0, "A safe kitchen depends on the cooperation of all staff members."),
+      Q("Employee Responsibilities", "Which action is part of an employee's responsibilities?", ["Follow safety rules", "Damage cords", "Block walkways", "Overcrowd cooking areas"], 0, "Following safety rules is the first listed employee responsibility."),
+
+      Q("Lesson Summary", "What is essential in every food service operation?", ["A well-stocked first aid kit", "Loose jewelry", "A slippery floor", "A damaged power cord"], 0, "The summary says a well-stocked first aid kit is essential in every food service operation."),
+      Q("Lesson Summary", "What does immediate and appropriate first aid do?", ["Minimizes injury severity", "Increases operational hazards", "Replaces prevention", "Eliminates reporting"], 0, "The lesson concludes that immediate and appropriate first aid minimizes injury severity."),
+      Q("Lesson Summary", "How does emergency preparedness help the workplace?", ["It improves safety and response effectiveness", "It removes the need for inspections", "It increases accident severity", "It replaces cooperation"], 0, "Emergency preparedness improves workplace safety and response effectiveness."),
+      Q("Lesson Summary", "Which group contains common injuries summarized in the lesson?", ["Cuts, burns, falls, choking, and electrical accidents", "Sunburn, frostbite, and seasickness", "Only chemical exposure", "Only eye injuries"], 0, "The summary names cuts, burns, falls, choking, and electrical accidents as common kitchen injuries."),
+      Q("Lesson Summary", "What is the broadest way food service employees support a safe kitchen?", ["Follow safety practices and respond appropriately to emergencies", "Work quickly regardless of hazards", "Leave safety only to supervisors", "Avoid training and reporting"], 0, "This combines the lesson’s central application: prevent accidents through safe practices and respond quickly and appropriately when they occur.")
+    ];
+
+    const els = Object.fromEntries([...document.querySelectorAll('[id]')].map(el => [el.id, el]));
+    const topics = [...new Set(questions.map(item => item.topic))];
+    let active = [];
+    let index = 0;
+    let score = 0;
+    let answered = false;
+    let selectedTopic = "All topics";
+    let missed = [];
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('active', panel.id === id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function init() {
+      els.questionTotal.textContent = questions.length;
+      els.topicTotal.textContent = topics.length;
+      els.topicSelect.innerHTML = `<option>All topics</option>${topics.map(topic => {
+        const count = questions.filter(q => q.topic === topic).length;
+        return `<option value="${topic}">${topic} (${count})</option>`;
+      }).join('')}`;
+    }
+
+    function startQuiz(forceMissed = false) {
+      selectedTopic = forceMissed ? "Missed questions" : els.topicSelect.value;
+      const pool = forceMissed ? missed.map(item => item.question) : (selectedTopic === "All topics" ? questions : questions.filter(item => item.topic === selectedTopic));
+      active = shuffle(pool);
+      index = 0;
+      score = 0;
+      missed = [];
+      showPanel('quizPanel');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const item = active[index];
+      els.topicLabel.textContent = item.topic;
+      els.countLabel.textContent = `Question ${index + 1} of ${active.length}`;
+      els.scoreChip.textContent = `${score} correct`;
+      els.progressBar.style.width = `${((index + 1) / active.length) * 100}%`;
+      els.questionText.textContent = item.q;
+      els.feedback.className = 'feedback';
+      els.nextBtn.style.display = 'none';
+      els.answers.innerHTML = '';
+
+      item.options.forEach((option, optionIndex) => {
+        const button = document.createElement('button');
+        button.className = 'answer';
+        button.type = 'button';
+        button.innerHTML = `<span class="letter">${String.fromCharCode(65 + optionIndex)}</span><span class="answer-text"></span><span class="answer-icon"></span>`;
+        button.querySelector('.answer-text').textContent = option;
+        button.addEventListener('click', () => chooseAnswer(optionIndex));
+        els.answers.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(choice) {
+      if (answered) return;
+      answered = true;
+      const item = active[index];
+      const isCorrect = choice === item.answer;
+      if (isCorrect) score++;
+      else missed.push({ question: item, choice });
+
+      [...els.answers.children].forEach((button, optionIndex) => {
+        button.disabled = true;
+        const icon = button.querySelector('.answer-icon');
+        if (optionIndex === item.answer) {
+          button.classList.add('correct');
+          icon.textContent = '✓';
+        } else if (optionIndex === choice) {
+          button.classList.add('wrong');
+          icon.textContent = '×';
+        } else {
+          button.classList.add('dimmed');
+        }
+      });
+
+      els.feedback.className = `feedback show ${isCorrect ? 'good' : 'bad'}`;
+      els.feedbackTitle.textContent = isCorrect ? 'Correct!' : `Correct answer: ${item.options[item.answer]}`;
+      els.feedbackText.textContent = item.explanation;
+      els.scoreChip.textContent = `${score} correct`;
+      els.nextBtn.textContent = index === active.length - 1 ? 'See results' : 'Next question';
+      els.nextBtn.style.display = 'inline-flex';
+      els.nextBtn.focus({ preventScroll: true });
+    }
+
+    function nextQuestion() {
+      if (!answered) return;
+      if (index < active.length - 1) {
+        index++;
+        renderQuestion();
+        document.querySelector('.quiz-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      const percent = Math.round((score / active.length) * 100);
+      const coveredTopics = new Set(active.map(item => item.topic)).size;
+      showPanel('resultPanel');
+      els.scoreRing.style.setProperty('--score-angle', `${percent * 3.6}deg`);
+      els.scoreValue.innerHTML = `${percent}%<small>${score} of ${active.length}</small>`;
+      els.correctStat.textContent = score;
+      els.missedStat.textContent = active.length - score;
+      els.topicStat.textContent = coveredTopics;
+      els.resultMessage.textContent = percent >= 90 ? 'Excellent work—you have a strong command of this lesson.' : percent >= 75 ? 'Good work. Review the missed items to strengthen your recall.' : 'Keep going. Use the answer notes, then retry the questions you missed.';
+      els.reviewBtn.style.display = missed.length ? 'inline-flex' : 'none';
+      els.reviewList.classList.remove('show');
+      els.reviewList.innerHTML = missed.map((entry, i) => `<div class="review-item"><p>${i + 1}. ${escapeHtml(entry.question.q)}</p><small>Correct: ${escapeHtml(entry.question.options[entry.question.answer])}</small></div>`).join('');
+    }
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+    els.startBtn.addEventListener('click', () => startQuiz(false));
+    els.nextBtn.addEventListener('click', nextQuestion);
+    els.quitBtn.addEventListener('click', () => showPanel('homePanel'));
+    els.retryBtn.addEventListener('click', () => {
+      const currentPool = selectedTopic === "All topics" ? questions : (selectedTopic === "Missed questions" ? active : questions.filter(item => item.topic === selectedTopic));
+      active = shuffle(currentPool);
+      index = 0; score = 0; missed = [];
+      showPanel('quizPanel'); renderQuestion();
+    });
+    els.reviewBtn.addEventListener('click', () => {
+      if (!missed.length) return;
+      els.reviewList.classList.toggle('show');
+      els.reviewBtn.textContent = els.reviewList.classList.contains('show') ? 'Hide missed' : 'Review missed';
+    });
+    els.homeBtn.addEventListener('click', () => showPanel('homePanel'));
+    document.addEventListener('keydown', event => {
+      if (!els.quizPanel.classList.contains('active')) return;
+      if (!answered && ['1','2','3','4'].includes(event.key)) els.answers.children[Number(event.key) - 1]?.click();
+      if (answered && (event.key === 'Enter' || event.key === 'ArrowRight')) nextQuestion();
+    });
+
+    init();
+  </script>
+</body>
+</html>
